@@ -1,0 +1,721 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  padding-top: 160px;
+  padding-bottom: 80px;
+}
+
+.page {
+  width: 900px;
+}
+
+.title {
+  font-size: 34px;
+  font-weight: 800;
+  margin-bottom: 30px;
+  color: var(--text-strong);
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  padding: 20px 28px;
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.4s ease both;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-strong);
+  flex-shrink: 0;
+  min-width: 100px;
+}
+
+.card p {
+  color: var(--text-soft);
+  margin: 0;
+  flex-grow: 1;
+}
+
+/* New Course Card Layout */
+.courseCard {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  padding: 24px 28px;
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.4s ease both;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.courseCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-color: var(--accent);
+}
+
+.courseContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.courseHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.courseCode {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+
+.courseName {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-strong);
+  line-height: 1.3;
+}
+
+.courseDescription {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.courseActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.courseActions .btn,
+.courseActions .enterBtn {
+  min-width: 120px;
+}
+
+/* Button base */
+.btn {
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.enterBtn {
+  padding: 10px 28px;
+  background: linear-gradient(135deg, #2ecc71, #1e9b52);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.enterBtn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+.createBtn {
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #4f7aff, #304ffe);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.createBtn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.moduleWrapper {
+  padding-top: 150px;
+  /* pushes content down */
+  padding-bottom: 80px;
+  /* spacing at bottom */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.moduleInner {
+  width: 950px;
+  background: var(--bg-soft);
+  border-radius: 24px;
+  padding: 40px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow);
+}
+
+.moduleDetailWrapper {
+  display: flex;
+  justify-content: center;
+  padding-top: 160px;
+  padding-bottom: 80px;
+  width: 100%;
+}
+
+.moduleDetailCard {
+  width: 900px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 26px;
+
+  padding: 40px 45px;
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+}
+
+
+/* Enroll button */
+.enroll {
+  background: linear-gradient(135deg, #4f7aff, #304ffe);
+  color: white;
+}
+
+.enroll:hover {
+  filter: brightness(1.15);
+}
+
+/* Unenroll button (red) */
+.unenroll {
+  background: linear-gradient(135deg, #d53b3b, #a81212);
+  color: white;
+}
+
+.unenroll:hover {
+  filter: brightness(1.15);
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Course breadcrumb */
+.courseBreadcrumb {
+  color: var(--text-soft);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.courseBreadcrumb span:hover {
+  text-decoration: underline;
+}
+
+/* Admin Buttons */
+.editBtn {
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.editBtn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.deleteBtn {
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.deleteBtn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Modal Content */
+.modalContent {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 24px;
+  padding: 35px 40px;
+  width: 450px;
+  max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modalContent h2 {
+  margin: 0 0 20px 0;
+  color: var(--text-strong);
+  font-size: 24px;
+}
+
+.modalContent>p {
+  color: var(--text-soft);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 25px 0;
+}
+
+/* Close Button */
+.closeBtn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: var(--text-soft);
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-strong);
+}
+
+/* Form Styling */
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formGroup label {
+  color: var(--text-strong);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.formGroup input,
+.formGroup textarea {
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #4f7aff;
+  box-shadow: 0 0 0 3px rgba(79, 122, 255, 0.1);
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Modal Buttons */
+.modalButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.cancelBtn,
+.confirmDeleteBtn,
+.saveBtn {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelBtn {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border-soft);
+}
+
+.cancelBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.confirmDeleteBtn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.confirmDeleteBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.saveBtn {
+  background: linear-gradient(135deg, #4f7aff, #304ffe);
+  color: white;
+  box-shadow: 0 4px 12px rgba(79, 122, 255, 0.3);
+}
+
+.saveBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 122, 255, 0.4);
+}
+
+/* Course Detail Header Card */
+.courseHeaderCard {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 40px;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+}
+
+.courseHeaderContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+.courseTitleSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.courseCodeLarge {
+  display: inline-block;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  background: var(--accent-glow);
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.courseNameLarge {
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--text-strong);
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.courseDescLarge {
+  font-size: 16px;
+  color: var(--text-soft);
+  margin: 0;
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin: 0 0 20px 0;
+}
+
+/* Admin Action Buttons */
+.adminActionsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.actionBtnEdit,
+.actionBtnDelete,
+.actionBtnAdd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 160px;
+  justify-content: center;
+}
+
+.actionIcon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionBtnEdit {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.actionBtnEdit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  filter: brightness(1.1);
+}
+
+.actionBtnDelete {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.actionBtnDelete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  filter: brightness(1.1);
+}
+
+.actionBtnAdd {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.actionBtnAdd:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  filter: brightness(1.1);
+}
+
+/* Module Card Layout (similar to course card) */
+.moduleCard {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  padding: 24px 28px;
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.4s ease both;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.moduleCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-color: var(--accent);
+}
+
+.moduleContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.moduleCourseTag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 12px;
+  border-radius: 6px;
+  width: fit-content;
+  margin-bottom: 4px;
+  border: 1px solid var(--border-soft);
+}
+
+.moduleHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.moduleCode {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+
+.moduleName {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-strong);
+  line-height: 1.3;
+}
+
+.moduleDescription {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.moduleActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.moduleActions .btn,
+.moduleActions .enterBtn {
+  min-width: 120px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .courseHeaderContent {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .courseNameLarge {
+    font-size: 32px;
+  }
+
+  .courseCodeLarge {
+    font-size: 16px;
+  }
+
+  .adminActionsGroup {
+    width: 100%;
+  }
+
+  .actionBtnEdit,
+  .actionBtnDelete,
+  .actionBtnAdd {
+    width: 100%;
+  }
+
+  .moduleCard,
+  .courseCard {
+    flex-direction: column;
+  }
+
+  .moduleActions,
+  .courseActions {
+    width: 100%;
+  }
+
+  .moduleActions .btn,
+  .moduleActions .enterBtn,
+  .courseActions .btn,
+  .courseActions .enterBtn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,356 @@
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: sticky;
+  top: 25px;
+  z-index: 999;
+  animation: slideDown 0.8s ease forwards;
+  opacity: 0;
+  transform: translateY(-100px);
+}
+
+@keyframes slideDown {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  pointer-events: none;
+}
+
+.navbar {
+  pointer-events: auto;
+
+  display: flex;
+  gap: 24px;
+  align-items: center;
+
+  background: var(--bg-soft);
+  padding: 14px 28px;
+  border-radius: 40px;
+
+  border: 1px solid var(--border-soft);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.navbar.collapsed {
+  height: 4px;
+  padding: 0;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar.collapsed * {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.navbar a,
+.navbar button {
+  color: var(--text);
+  text-decoration: none;
+
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+
+  padding: 8px 16px;
+  border-radius: 12px;
+
+  transition: all 0.25s ease;
+  background: transparent;
+  border: none;
+  white-space: nowrap;
+}
+
+.navbar a:hover,
+.navbar button:hover {
+  background: var(--bg-soft);
+  transform: translateY(-2px);
+  color: var(--text-strong);
+}
+
+.logout {
+  color: #ff5f5f !important;
+}
+
+.logout:hover {
+  background: rgba(255, 80, 80, 0.14) !important;
+  color: #ff8d8d !important;
+}
+
+.themeToggle {
+  padding: 8px 12px;
+  border-radius: 50%;
+  color: var(--text);
+}
+
+/* Hamburger Button - circular, always visible */
+.hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  color: var(--text);
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+  transition: 0.25s ease;
+}
+
+.hamburger:hover {
+  background: var(--bg-soft);
+  transform: translateY(-2px);
+}
+
+.hamburgerCollapsed {
+  width: 32px !important;
+  height: 4px !important;
+  border-radius: 2px !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  position: relative;
+}
+
+/* Invisible expanded hitbox for easier hover when collapsed */
+.hamburgerCollapsed::before {
+  content: '';
+  position: absolute;
+  top: -22px;
+  left: -8px;
+  right: -8px;
+  bottom: -22px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.hamburgerCollapsed * {
+  opacity: 0;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Sidebar Drawer */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 260px;
+  height: 100vh;
+  background: var(--bg-soft);
+  border-right: 1px solid var(--border-soft);
+  backdrop-filter: blur(14px);
+  z-index: 1001;
+  padding: 20px;
+  transition: left 0.3s ease;
+  box-shadow: var(--shadow);
+}
+
+.sidebarOpen {
+  left: 0;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  margin-bottom: 24px;
+  padding: 4px;
+  border-radius: 8px;
+  transition: 0.2s ease;
+}
+
+.closeBtn:hover {
+  background: var(--bg-soft);
+}
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebarNav a,
+.sidebarNav button {
+  color: var(--text-strong);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 14px 18px;
+  border-radius: 12px;
+  transition: 0.25s ease;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-soft);
+  text-align: left;
+}
+
+.sidebarNav a:hover,
+.sidebarNav button:hover {
+  background: rgba(255, 68, 68, 0.15);
+  border-color: rgba(255, 68, 68, 0.3);
+  transform: translateX(4px);
+  color: #ff4444;
+}
+
+/* Sidebar Footer with Settings */
+.sidebarFooter {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+}
+
+.settingsLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 12px 16px;
+  border-radius: 12px;
+  transition: 0.25s ease;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-soft);
+}
+
+.settingsLink:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+  color: var(--text-strong);
+}
+
+/* Responsive: hide navbar on small screens, show only hamburger */
+@media (max-width: 768px) {
+  .navbar {
+    display: none;
+  }
+}
+
+/* Logout Confirmation Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 28px 32px;
+  z-index: 2001;
+  min-width: 300px;
+  text-align: center;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.modal h3 {
+  color: var(--text-strong);
+  margin: 0 0 8px 0;
+  font-size: 20px;
+}
+
+.modal p {
+  color: var(--text);
+  margin: 0 0 24px 0;
+  font-size: 14px;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.cancelBtn,
+.confirmBtn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  border: none;
+}
+
+.cancelBtn {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+.cancelBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.confirmBtn {
+  background: linear-gradient(135deg, #ff5f5f, #ff3b3b);
+  color: #fff;
+}
+
+.confirmBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 80, 80, 0.4);
+}

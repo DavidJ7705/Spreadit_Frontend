@@ -1,0 +1,35 @@
+.backBtn {
+    position: fixed;
+    top: 100px;
+    /* Below navbar */
+    left: 40px;
+    z-index: 900;
+
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: transparent;
+    border: none;
+
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    /* box-shadow: var(--shadow-sm); */
+    transition: all 0.2s ease;
+}
+
+.backBtn:hover {
+    transform: translateX(-4px);
+    /* Slide slightly left */
+    color: var(--accent);
+}
+
+@media (max-width: 768px) {
+    .backBtn {
+        top: 90px;
+        left: 20px;
+    }
+}

@@ -1,0 +1,205 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800;900&display=swap');
+
+/* ============================================================
+   THEME VARIABLES (High Contrast & Reactive)
+============================================================ */
+:root {
+    /* DARK MODE (Default - Aurora) */
+    --bg: #000000;
+    /* Super Glassy: Lower opacity for Aurora visibility */
+    --bg-surface: rgba(20, 20, 20, 0.158);
+    --bg-card: rgba(30, 30, 30, 0.514);
+
+    --text: #ffffff;
+    --text-secondary: #e0e0e0;
+    --text-tertiary: #b0b0b0;
+
+    --accent: #ff0055;
+    --accent-glow: rgba(255, 0, 85, 0.6);
+
+    /* Premium Glass Borders */
+    --border: rgba(255, 255, 255, 0.2);
+    --border-hover: rgba(255, 255, 255, 0.048);
+
+    --glass-blur: blur(40px);
+    /* Massive blur */
+    --shadow-sm: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6);
+
+    --input-bg: rgba(255, 255, 255, 0.1);
+    --input-border: rgba(255, 255, 255, 0.25);
+    --input-focus: #ff0055;
+}
+
+/* LIGHT MODE (Reactive Switch) */
+body[data-theme="light"] {
+    --bg: #ffffff;
+    --bg-surface: rgba(255, 255, 255, 0.85);
+    /* Higher opacity for light mode readability */
+    --bg-card: #f8f9fa;
+
+    --text: #111111;
+    --text-secondary: #444444;
+    --text-tertiary: #666666;
+
+    --accent: #ff0055;
+    --accent-glow: rgba(255, 0, 85, 0.2);
+
+    --border: rgba(0, 0, 0, 0.1);
+    --border-hover: rgba(0, 0, 0, 0.2);
+
+    --glass-blur: blur(20px);
+    --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.1);
+
+    --input-bg: rgba(0, 0, 0, 0.05);
+    --input-border: rgba(0, 0, 0, 0.1);
+    --input-focus: #ff0055;
+}
+
+/* Base Reset */
+* {
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+}
+
+/* Aurora Background (Subtle) */
+body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 50% 50%,
+            rgba(255, 0, 85, 0.15) 0%,
+            rgba(100, 0, 255, 0.15) 40%,
+            rgba(0, 0, 0, 0) 70%);
+    animation: auroraMove 20s infinite alternate ease-in-out;
+    z-index: -999;
+    pointer-events: none;
+}
+
+@keyframes auroraMove {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(-30px, -30px) scale(1.05);
+    }
+}
+
+/* UNIVERSAL SPREADIT BRANDING - VIBRANT & READABLE */
+.spreadit-bg-universal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    font-size: min(17vw, 360px);
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.04em;
+
+    /* Clean Vibrant Gradient */
+    background: linear-gradient(135deg, #ff0055 0%, #ff5500 25%, #ff0055 50%, #ff5500 75%);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientMove 8s ease infinite;
+
+    opacity: 0.6;
+    z-index: -1;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* AUTH PAGE SPREADIT BRANDING */
+.spreadit-bg {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    font-size: min(17vw, 360px);
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.04em;
+
+    /* Clean Vibrant Gradient */
+    background: linear-gradient(135deg, #ff0055 0%, #ff5500 25%, #ff0055 50%, #ff5500 75%);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientMove 8s ease infinite;
+
+    opacity: 0.6;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+}
+
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* UTILITIES */
+.glass-panel {
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
+
