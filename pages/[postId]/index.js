@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import PostDetail from "../../components/posts/PostDetail";
+import { USER_API, POST_API, MODULE_API } from '../../config/api';
 
 export default function PostDetailPage() {
     const router = useRouter();
@@ -10,6 +11,8 @@ export default function PostDetailPage() {
     const [currentUser, setCurrentUser] = useState(null);
     const [moduleInfo, setModuleInfo] = useState(null);
     const [courseInfo, setCourseInfo] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Fetch current user
     useEffect(() => {
@@ -22,14 +25,25 @@ export default function PostDetailPage() {
         if (!postId) return;
 
         async function fetchPostAndUser() {
+            setLoading(true);
+            setError(null);
             try {
                 // Fetch post
-                const postRes = await fetch(`http://localhost:8004/api/post-by-id/${postId}`);
+                const postRes = await fetch(POST_API.GET_POST_BY_ID(postId));
+
+                if (!postRes.ok) {
+                    throw new Error(`Post not found (${postRes.status})`);
+                }
+
                 const postData = await postRes.json();
+
+                if (!postData) {
+                    throw new Error("No post data received");
+                }
 
                 // Fetch all users to get username
                 try {
-                    const usersRes = await fetch('http://localhost:8001/api/all-users');
+                    const usersRes = await fetch(USER_API.GET_ALL_USERS);
                     if (usersRes.ok) {
                         const users = await usersRes.json();
                         const postUser = users.find(u => u.id === postData.user_id);
@@ -48,8 +62,12 @@ export default function PostDetailPage() {
                 if (postData?.module_id) {
                     loadModuleInfo(postData.module_id);
                 }
+
+                setLoading(false);
             } catch (err) {
                 console.error('Failed to load post:', err);
+                setError(err.message || 'Failed to load post');
+                setLoading(false);
             }
         }
 
@@ -58,7 +76,7 @@ export default function PostDetailPage() {
 
     async function loadModuleInfo(moduleId) {
         try {
-            const res = await fetch(`http://localhost:8003/api/module/${moduleId}`);
+            const res = await fetch(MODULE_API.GET_MODULE_BY_ID(moduleId));
             if (res.ok) {
                 const modData = await res.json();
                 setModuleInfo(modData);
@@ -69,16 +87,41 @@ export default function PostDetailPage() {
         }
     }
 
-    if (!post) return null;
+    if (loading) {
+        return (
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text)' }}>
+                Loading post...
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text)' }}>
+                <h2>Error loading post</h2>
+                <p>{error}</p>
+                <button onClick={() => router.back()}>Go Back</button>
+            </div>
+        );
+    }
+
+    if (!post) {
+        return (
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text)' }}>
+                <h2>Post not found</h2>
+                <button onClick={() => router.back()}>Go Back</button>
+            </div>
+        );
+    }
 
     return (
         <PostDetail
             id={post.id}
-            title={post.post_title}  // Backend uses post_title
+            title={post.post_title || 'Untitled'}  // Backend uses post_title, with fallback
             image={null}  // Backend doesn't support images yet
             username={post.username || 'Unknown User'}  // Fetched from User service
             profilePicture={null}
-            description={post.content}  // Backend uses content
+            description={post.content || ''}  // Backend uses content
             currentUserId={currentUser?.id}
             currentUserRole={null}  // Backend doesn't have roles
             currentUserProfilePicture={null}
@@ -92,4 +135,3 @@ export default function PostDetailPage() {
         />
     );
 }
-

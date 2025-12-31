@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import classes from "../components/modules/modulePage.module.css";
 import BackButton from '../components/ui/BackButton';
+import { COURSE_API } from '../config/api';
 
 export default function YourCoursesPage() {
     const router = useRouter();
 
-    const [allCourses, setAllCourses] = useState([]);
-    const [enrolled, setEnrolled] = useState([]);
+    const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -17,26 +17,49 @@ export default function YourCoursesPage() {
     async function loadData() {
         try {
             // Fetch all courses from Course microservice
-            const coursesRes = await fetch("http://localhost:8002/api/get-all-courses");
+            const coursesRes = await fetch(COURSE_API.GET_ALL_COURSES);
             const coursesData = await coursesRes.json();
-            setAllCourses(coursesData);
 
-            // Backend doesn't track enrolled courses yet
-            setEnrolled([]);
+            // Filter by enrollment using Source of Truth (enrolled_users list)
+            const dbId = localStorage.getItem('userId');
+            if (dbId) {
+                // Check if the user's DB ID is in the enrolled_users list
+                const myCourses = coursesData.filter(c => c.enrolled_users && c.enrolled_users.includes(dbId));
+                setEnrolledCourses(myCourses);
+            } else {
+                setEnrolledCourses([]);
+            }
         } catch (err) {
             console.error("Error loading data:", err);
+            setEnrolledCourses([]);
         } finally {
             setLoading(false);
         }
     }
 
-    async function unenroll(courseId) {
-        alert("Course enrollment tracking is not yet implemented in the backend.");
-        // TODO: Implement when backend supports enrollment
-    }
+    async function unenroll(courseId, courseStringId) {
+        if (!confirm("Are you sure you want to unenroll from this course?")) return;
 
-    // Filter to only show enrolled courses
-    const enrolledCourses = allCourses.filter(c => enrolled.includes(c._id));
+        try {
+            const userId = localStorage.getItem('userId');
+            if (!userId) return;
+
+            const res = await fetch(COURSE_API.UNENROLL_USER(courseStringId, userId), {
+                method: "POST"
+            });
+
+            if (res.ok) {
+                // Remove from local state immediately
+                setEnrolledCourses(prev => prev.filter(c => c.id !== courseId));
+            } else {
+                const data = await res.json();
+                alert(data.detail || "Failed to unenroll");
+            }
+        } catch (err) {
+            console.error("Error unenrolling:", err);
+            alert("Error unenrolling");
+        }
+    }
 
     if (loading) {
         return (
@@ -72,14 +95,14 @@ export default function YourCoursesPage() {
                     <div className={classes.grid}>
                         {enrolledCourses.map((c) => (
                             <div
-                                key={c._id}
+                                key={c.id}
                                 className={classes.courseCard}
-                                onClick={() => router.push(`/courses/${c._id}`)}
+                                onClick={() => router.push(`/courses/${c.id}`)}
                             >
                                 <div className={classes.courseContent}>
                                     <div className={classes.courseHeader}>
-                                        <h2 className={classes.courseCode}>{c.code}</h2>
-                                        <h3 className={classes.courseName}>{c.name}</h3>
+                                        <h2 className={classes.courseCode}>{c.course_id}</h2>
+                                        <h3 className={classes.courseName}>{c.course_name}</h3>
                                     </div>
                                     {c.description && (
                                         <p className={classes.courseDescription}>{c.description}</p>
@@ -88,13 +111,13 @@ export default function YourCoursesPage() {
                                 <div className={classes.courseActions} onClick={(e) => e.stopPropagation()}>
                                     <button
                                         className={`${classes.btn} ${classes.unenroll}`}
-                                        onClick={() => unenroll(c._id)}
+                                        onClick={() => unenroll(c.id, c.course_id)}
                                     >
                                         Unenroll
                                     </button>
                                     <button
                                         className={classes.enterBtn}
-                                        onClick={() => router.push(`/courses/${c._id}`)}
+                                        onClick={() => router.push(`/courses/${c.id}`)}
                                     >
                                         Enter
                                     </button>

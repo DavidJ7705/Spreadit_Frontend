@@ -4,6 +4,7 @@ import { IoArrowBack } from "react-icons/io5";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { useRouter } from 'next/router';
 import GlobalContext from '../../pages/store/globalContext';
+import { POST_API, USER_API } from '../../config/api';
 
 export default function PostDetail(props) {
     const router = useRouter();
@@ -24,22 +25,96 @@ export default function PostDetail(props) {
     // Check if current user has liked
     useEffect(() => {
         if (props.currentUserId && likes.length > 0) {
-            setIsLiked(likes.some(l => l.userId === props.currentUserId));
+            const currentId = Number(props.currentUserId);
+            setIsLiked(likes.some(l => Number(l.user_id) === currentId));
         }
     }, [props.currentUserId, likes]);
 
+    // Load initial data
+    useEffect(() => {
+        loadLikes();
+        loadComments();
+    }, [props.id]);
+
+    async function loadLikes() {
+        try {
+            const res = await fetch(POST_API.GET_ALL_LIKES);
+            if (res.ok) {
+                const allLikes = await res.json();
+                const postLikes = allLikes.filter(l => l.post_id === props.id);
+                setLikes(postLikes);
+
+                if (props.currentUserId) {
+                    const currentId = Number(props.currentUserId);
+                    setIsLiked(postLikes.some(l => Number(l.user_id) === currentId));
+                }
+            }
+        } catch (err) {
+            console.error("Failed to load likes:", err);
+        }
+    }
+
+    async function loadComments() {
+        try {
+            const res = await fetch(POST_API.GET_COMMENTS_FOR_POST(props.id));
+            if (res.ok) {
+                const postComments = await res.json();
+
+                // We need to fetch user details for each comment to show username
+                const commentsWithUsers = await Promise.all(postComments.map(async (c) => {
+                    try {
+                        const uRes = await fetch(USER_API.GET_USER_BY_ID(c.user_id));
+                        if (uRes.ok) {
+                            const uData = await uRes.json();
+                            return { ...c, username: uData.username || `User ${c.user_id}` };
+                        }
+                    } catch (e) {
+                        // ignore
+                    }
+                    return { ...c, username: `User ${c.user_id}` };
+                }));
+
+                setComments(commentsWithUsers);
+            }
+        } catch (err) {
+            // 404 is expected if no comments
+            if (err.message && !err.message.includes("404")) {
+                console.error("Failed to load comments:", err);
+            }
+        }
+    }
+
     // Toggle like
     async function handleLike() {
-        try {
-            const res = await fetch(`http://localhost:8000/likePost/${props.id}`, {
-                method: "POST",
-                credentials: "include"
-            });
+        if (!props.currentUserId) {
+            alert("Please log in to like posts");
+            return;
+        }
 
-            if (res.ok) {
-                const data = await res.json();
-                setLikes(data.likes);
-                setIsLiked(data.liked);
+        try {
+            if (isLiked) {
+                // Unlike
+                const res = await fetch(POST_API.REMOVE_LIKE(props.currentUserId, props.id), {
+                    method: "DELETE"
+                });
+                if (res.ok || res.status === 404) {
+                    setIsLiked(false);
+                    loadLikes();
+                }
+            } else {
+                // Like
+                const res = await fetch(POST_API.ADD_LIKE, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_id: props.currentUserId,
+                        post_id: props.id
+                    })
+                });
+                if (res.ok) {
+                    setIsLiked(true);
+                    loadLikes();
+                }
             }
         } catch (err) {
             console.error("Like error:", err);
@@ -51,22 +126,26 @@ export default function PostDetail(props) {
         e.preventDefault();
         if (!newComment.trim() || submittingComment) return;
 
+        if (!props.currentUserId) {
+            alert("Please log in to comment");
+            return;
+        }
+
         setSubmittingComment(true);
         try {
-            const res = await fetch(`http://localhost:8000/addComment/${props.id}`, {
+            const res = await fetch(POST_API.ADD_COMMENT, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                credentials: "include",
                 body: JSON.stringify({
-                    text: newComment,
-                    profilePicture: props.currentUserProfilePicture || ""
+                    user_id: props.currentUserId,
+                    post_id: props.id,
+                    content: newComment
                 })
             });
 
             if (res.ok) {
-                const data = await res.json();
-                setComments(data.comments);
                 setNewComment("");
+                loadComments();
             }
         } catch (err) {
             console.error("Add comment error:", err);
@@ -83,14 +162,12 @@ export default function PostDetail(props) {
     async function handleDeleteComment() {
         if (!commentToDelete) return;
         try {
-            const res = await fetch(`http://localhost:8000/deleteComment/${props.id}/${commentToDelete}`, {
-                method: "DELETE",
-                credentials: "include"
+            const res = await fetch(POST_API.DELETE_COMMENT(commentToDelete), {
+                method: "DELETE"
             });
 
             if (res.ok) {
-                const data = await res.json();
-                setComments(data.comments);
+                loadComments();
             }
         } catch (err) {
             console.error("Delete comment error:", err);
@@ -100,9 +177,8 @@ export default function PostDetail(props) {
     }
 
     async function handleDelete() {
-        const res = await fetch(`http://localhost:8000/deletePost/${props.id}`, {
-            method: "DELETE",
-            credentials: "include"
+        const res = await fetch(POST_API.DELETE_POST(props.id), {
+            method: "DELETE"
         });
 
         if (res.ok) {
@@ -116,6 +192,8 @@ export default function PostDetail(props) {
             } else {
                 router.push("/");
             }
+        } else {
+            alert("Failed to delete post.");
         }
     }
 
@@ -244,9 +322,9 @@ export default function PostDetail(props) {
                             <p className={classes.noComments}>No comments yet. Be the first to comment!</p>
                         ) : (
                             comments.map((comment) => {
-                                const canDeleteComment = comment.userId === props.currentUserId || props.currentUserRole === "admin";
+                                const canDeleteComment = comment.user_id === Number(props.currentUserId) || props.currentUserRole === "admin";
                                 return (
-                                    <div key={comment._id} className={classes.commentCard}>
+                                    <div key={comment.id || comment._id} className={classes.commentCard}>
                                         <div className={classes.commentHeader}>
                                             {comment.profilePicture ? (
                                                 <img src={comment.profilePicture} alt="" className={classes.commentPic} />
@@ -257,18 +335,18 @@ export default function PostDetail(props) {
                                             )}
                                             <span className={classes.commentUsername}>{comment.username}</span>
                                             <span className={classes.commentTime}>
-                                                {new Date(comment.createdAt).toLocaleDateString()}
+                                                {comment.created_at ? new Date(comment.created_at).toLocaleDateString() : 'Just now'}
                                             </span>
                                             {canDeleteComment && (
                                                 <button
                                                     className={classes.deleteCommentBtn}
-                                                    onClick={() => confirmDeleteComment(comment._id)}
+                                                    onClick={() => confirmDeleteComment(comment.id || comment._id)}
                                                 >
                                                     ×
                                                 </button>
                                             )}
                                         </div>
-                                        <p className={classes.commentText}>{comment.text}</p>
+                                        <p className={classes.commentText}>{comment.content}</p>
                                     </div>
                                 );
                             })

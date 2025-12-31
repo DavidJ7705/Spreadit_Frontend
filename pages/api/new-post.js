@@ -37,7 +37,7 @@ async function handler(req, res) {
 
 
     // Forward post data to Post microservice
-    const response = await fetch("http://127.0.0.1:8004/api/add-post", {
+    const response = await fetch("http://post-service:8000/api/add-post", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

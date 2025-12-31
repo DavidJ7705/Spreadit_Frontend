@@ -1,12 +1,14 @@
 import classes from './PostItem.module.css';
 import { useRouter } from 'next/router';
-import { AiOutlineHeart, AiOutlineComment } from 'react-icons/ai';
+import { AiOutlineHeart, AiOutlineComment, AiOutlineDelete } from 'react-icons/ai';
 
 function PostItem(props) {
   const router = useRouter();
   const hasImage = props.image && props.image.length > 0;
   const likeCount = props.likes?.length || 0;
   const commentCount = props.comments?.length || 0;
+
+  const isOwner = props.currentUserId && props.authorId && props.currentUserId === props.authorId;
 
   return (
     <div className={classes.card} onClick={() => router.push("/" + props.id)}>
@@ -19,6 +21,20 @@ function PostItem(props) {
           </div>
         )}
         <span className={classes.username}>{props.username}</span>
+
+        {isOwner && (
+          <div
+            className={classes.deleteBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              props.onDelete && props.onDelete(props.id);
+            }}
+            style={{ marginLeft: 'auto', cursor: 'pointer', color: '#ff4d4d' }}
+            title="Delete Post"
+          >
+            <AiOutlineDelete size={20} />
+          </div>
+        )}
       </div>
 
       {hasImage && (

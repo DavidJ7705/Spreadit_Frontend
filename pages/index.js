@@ -1,6 +1,7 @@
 import PostItem from '../components/posts/PostItem';
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/router';
+import { POST_API } from '../config/api';
 
 import WelcomeText from '../components/WelcomeText';
 import classes from '../styles/Home.module.css';
@@ -9,6 +10,7 @@ function HomePage() {
     const router = useRouter();
     const [posts, setPosts] = useState(null);
     const [username, setUsername] = useState("");
+    const [currentUserId, setCurrentUserId] = useState(null);
 
     useEffect(() => {
         loadUserInfo();
@@ -18,10 +20,33 @@ function HomePage() {
     function loadUserInfo() {
         // Get user info from localStorage
         const email = localStorage.getItem('userEmail');
+        const id = localStorage.getItem('userId');
+
+        if (id) {
+            setCurrentUserId(parseInt(id));
+        }
+
         if (email) {
             // Extract username from email (before @) or use full email
             const usernameFromEmail = email.split('@')[0];
             setUsername(usernameFromEmail);
+        }
+    }
+
+    async function handleDeletePost(postId) {
+        if (!confirm("Are you sure you want to delete this post?")) return;
+        try {
+            const res = await fetch(POST_API.DELETE_POST(postId), {
+                method: 'DELETE'
+            });
+            if (res.ok) {
+                setPosts(prev => prev.filter(p => p.id !== postId));
+            } else {
+                alert("Failed to delete post");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error deleting post");
         }
     }
 
@@ -122,7 +147,6 @@ function HomePage() {
                         {posts.length === 0 ? (
                             <div className={classes.empty}>
                                 <p>No posts yet. Be the first to create one!</p>
-
                             </div>
                         ) : (
                             <div className={classes.postsGrid}>
@@ -130,13 +154,16 @@ function HomePage() {
                                     <PostItem
                                         key={post.id}
                                         id={post.id}
-                                        image={null}  // Backend doesn't support images yet
-                                        title={post.post_title}  // Backend uses post_title
-                                        description={post.content}  // Backend uses content
-                                        username={post.username}  // Fetched from User service
+                                        image={null}
+                                        title={post.post_title}
+                                        description={post.content}
+                                        username={post.username}
                                         profilePicture={null}
                                         likes={post.likes || []}
                                         comments={post.comments || []}
+                                        authorId={post.user_id}
+                                        currentUserId={currentUserId}
+                                        onDelete={handleDeletePost}
                                     />
                                 ))}
                             </div>

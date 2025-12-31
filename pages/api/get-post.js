@@ -8,7 +8,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Post ID is required" });
     }
 
-    const response = await fetch(`http://localhost:8004/api/post-by-id/${id}`, {
+    const response = await fetch(`http://post-service:8000/api/post-by-id/${id}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     });

@@ -24,6 +24,15 @@ export default function ModulesPage() {
       const res = await fetch("http://localhost:8003/api/module");
       const data = await res.json();
       setModules(data);
+
+      // Check enrollment from the module data itself
+      const userId = localStorage.getItem('userId');
+      if (userId) {
+        const userEnrolledModules = data
+          .filter(m => m.enrolled_users && m.enrolled_users.includes(userId))
+          .map(m => m.id_module);
+        setEnrolled(userEnrolledModules);
+      }
     } catch (error) {
       console.error('Failed to load modules:', error);
       setModules([]);
@@ -33,13 +42,37 @@ export default function ModulesPage() {
   }
 
   function loadProfile() {
-    // Backend doesn't track enrolled modules yet
-    setEnrolled([]);
+    // Handled in loadModules now
   }
 
   async function toggleEnrollment(moduleId) {
-    alert("Enrollment is not yet implemented in the backend.");
-    // TODO: Implement when backend supports enrollment
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      alert("Please log in to enroll.");
+      return;
+    }
+
+    if (enrolled.includes(moduleId)) {
+      alert("Unenrollment not implemented yet");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:8003/api/modules/${moduleId}/enroll/${userId}`, {
+        method: "POST"
+      });
+
+      if (res.ok) {
+        setEnrolled([...enrolled, moduleId]);
+        alert("Enrolled successfully!");
+        loadModules(); // Refresh list to get updated enrolled_users
+      } else {
+        const err = await res.json();
+        alert(err.detail || "Enrollment failed");
+      }
+    } catch (e) {
+      console.error("Enrollment error:", e);
+    }
   }
 
   return (

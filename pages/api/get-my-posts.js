@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     }
 
     // Get user's posts from Post microservice
-    const response = await fetch(`http://localhost:8004/api/post-by-user_id/${user_id}`, {
+    const response = await fetch(`http://post-service:8000/api/post-by-user_id/${user_id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json"

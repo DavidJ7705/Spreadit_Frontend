@@ -4,7 +4,7 @@ import classes from "../styles/profile.module.css";
 import PostDetail from "../components/posts/PostDetail";
 import GlobalContext from "./store/globalContext";
 import BackButton from '../components/ui/BackButton';
-import { USER_API } from '../config/api';
+import { USER_API, POST_API } from '../config/api';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -18,6 +18,8 @@ export default function ProfilePage() {
   const [modules, setModules] = useState([]);
   const [courses, setCourses] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [fullUserData, setFullUserData] = useState(null);
+  const [userStringId, setUserStringId] = useState("");
   const [selectedPost, setSelectedPost] = useState(null);
 
   // Edit profile modal state
@@ -60,10 +62,125 @@ export default function ProfilePage() {
         globalCtx.updateGlobals({ cmd: 'setUser', userId: storedUserId });
       }
 
-      // Note: Backend doesn't track enrolled modules/courses yet
-      // Leaving these empty for now
-      setModules([]);
-      setCourses([]);
+      // Fetch user's full data to get enrolled_modules and course_id
+      try {
+        const userRes = await fetch(USER_API.GET_USER_BY_ID(storedUserId));
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          setFullUserData(userData);
+          if (userData.user_id) setUserStringId(userData.user_id);
+
+          // Update displayed info from backend
+          if (userData.username) setUsername(userData.username);
+          if (userData.email) setEmail(userData.email);
+
+          // Load enrolled course
+          let userCourseFound = false;
+
+          // First try using the course_id from user data
+          if (userData.course_id && userData.course_id !== 0) {
+            try {
+              const courseRes = await fetch(`http://localhost:8002/api/get-course-by-db-id/${userData.course_id}`);
+              if (courseRes.ok) {
+                const courseData = await courseRes.json();
+                setCourses([{
+                  _id: courseData.id,
+                  code: courseData.course_id,
+                  name: courseData.course_name
+                }]);
+                userCourseFound = true;
+              }
+            } catch (err) {
+              console.error('Error fetching course by ID:', err);
+            }
+          }
+
+          // Fallback: If no course found via ID (or ID is 0), check all courses for enrollment
+          if (!userCourseFound) {
+            try {
+              const allCoursesRes = await fetch("http://localhost:8002/api/get-all-courses");
+              if (allCoursesRes.ok) {
+                const allCourses = await allCoursesRes.json();
+                // User ID in enrolled_users is the stored DB ID (storedUserId)
+                const enrolledCourse = allCourses.find(c => c.enrolled_users && c.enrolled_users.includes(storedUserId));
+
+                if (enrolledCourse) {
+                  setCourses([{
+                    _id: enrolledCourse.id,
+                    code: enrolledCourse.course_id,
+                    name: enrolledCourse.course_name
+                  }]);
+                } else {
+                  setCourses([]);
+                }
+              }
+            } catch (err) {
+              console.error('Error fetching all courses fallback:', err);
+              setCourses([]);
+            }
+          }
+
+          // Load enrolled modules
+          let modulesFound = [];
+
+          if (userData.enrolled_modules && userData.enrolled_modules.length > 0) {
+            try {
+              const modulePromises = userData.enrolled_modules.map(moduleId =>
+                fetch(`http://localhost:8003/api/module/${moduleId}`)
+                  .then(res => res.ok ? res.json() : null)
+                  .catch(err => {
+                    console.error(`Error fetching module ${moduleId}:`, err);
+                    return null;
+                  })
+              );
+
+              const modulesData = await Promise.all(modulePromises);
+              modulesFound = modulesData
+                .filter(m => m !== null)
+                .map(m => ({
+                  _id: m.id_module,
+                  code: m.id_module,
+                  name: m.name
+                }));
+            } catch (err) {
+              console.error('Error fetching modules:', err);
+            }
+          }
+
+          // Fallback: If no modules found via User Data, check modules directly
+          if (modulesFound.length === 0) {
+            try {
+              const allModsRes = await fetch("http://localhost:8003/api/module");
+              if (allModsRes.ok) {
+                const allMods = await allModsRes.json();
+                const userMods = allMods.filter(m => m.enrolled_users && m.enrolled_users.includes(storedUserId));
+
+                if (userMods.length > 0) {
+                  modulesFound = userMods.map(m => ({
+                    _id: m.id_module,
+                    code: m.id_module,
+                    name: m.name
+                  }));
+                }
+              }
+            } catch (err) {
+              console.error('Error fetching all modules fallback:', err);
+            }
+          }
+
+          setModules(modulesFound);
+
+
+        } else {
+          // If we can't fetch user data, show empty
+          setModules([]);
+          setCourses([]);
+        }
+      } catch (error) {
+        console.error('Error fetching user enrollment data:', error);
+        setModules([]);
+        setCourses([]);
+      }
     } catch (error) {
       console.error('Error loading profile:', error);
       router.push("/login");
@@ -78,15 +195,22 @@ export default function ProfilePage() {
         return;
       }
 
-      const res = await fetch("/api/get-my-posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: storedUserId })
-      });
+      const res = await fetch(POST_API.GET_POSTS_BY_USER(storedUserId));
 
       if (res.ok) {
         const data = await res.json();
-        setPosts(data.posts || []);
+        // Backend returns list of objects directly
+        const postsArray = Array.isArray(data) ? data : [];
+
+        // Map to frontend expectation
+        const mappedPosts = postsArray.map(p => ({
+          ...p,
+          _id: p.id,
+          title: p.post_title,
+          description: p.content,
+          image: null
+        }));
+        setPosts(mappedPosts);
       } else {
         setPosts([]);
       }
@@ -178,23 +302,41 @@ export default function ProfilePage() {
   async function handleUpdateProfile(e) {
     e.preventDefault();
 
-    alert("Profile editing is not yet implemented in the backend.");
-    closeEditModal();
+    if (!userStringId || !fullUserData) {
+      alert("Cannot update profile: Missing user data.");
+      return;
+    }
 
-    // TODO: Implement when backend supports profile updates
-    // const storedUserId = localStorage.getItem('userId');
-    // if (!storedUserId) return;
-    // 
-    // const updates = {};
-    // if (editUsername && editUsername !== username) updates.username = editUsername;
-    // if (editEmail && editEmail !== email) updates.email = editEmail;
-    // if (editPassword) updates.password = editPassword;
-    // 
-    // const res = await fetch(USER_API.UPDATE_USER(storedUserId), {
-    //   method: "PUT",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(updates)
-    // });
+    const updates = {
+      user_id: userStringId,
+      name: fullUserData.name, // required
+      email: editEmail,
+      username: editUsername,
+      password: editPassword || fullUserData.password, // required
+      course_id: fullUserData.course_id, // required
+      year: fullUserData.year, // required
+      is_admin: fullUserData.is_admin // optional
+    };
+
+    try {
+      const res = await fetch(USER_API.UPDATE_USER(userStringId), {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates)
+      });
+
+      if (res.ok) {
+        alert("Profile updated successfully!");
+        loadFullProfile();
+        closeEditModal();
+      } else {
+        const err = await res.json();
+        alert("Failed to update profile: " + (err.detail || "Unknown error"));
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error updating profile");
+    }
   }
 
   function logoutHandler() {
@@ -299,7 +441,7 @@ export default function ProfilePage() {
 
           {/* POSTS */}
           <div className={classes.statBox}>
-            <h3>Your Posts ({globalCtx.theGlobalObject.postCount})</h3>
+            <h3>Your Posts</h3>
             {posts.length === 0 ? (
               <p className={classes.empty}>No posts yet.</p>
             ) : (

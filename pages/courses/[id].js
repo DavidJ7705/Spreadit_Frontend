@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import classes from "../../components/modules/modulePage.module.css";
 import BackButton from '../../components/ui/BackButton';
+import { USER_API, MODULE_API } from '../../config/api';
 
 export default function CourseDetailPage() {
     const router = useRouter();
@@ -26,6 +27,7 @@ export default function CourseDetailPage() {
         if (id) {
             loadCourse();
             loadModules();
+            loadEnrollment();
         }
     }, [id]);
 
@@ -64,9 +66,59 @@ export default function CourseDetailPage() {
 
 
 
+    async function loadEnrollment() {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            setEnrolled([]);
+            return;
+        }
+
+        try {
+            // Fetch user data to get enrolled_modules
+            const userRes = await fetch(USER_API.GET_USER_BY_ID(userId));
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                setEnrolled(userData.enrolled_modules || []);
+            } else {
+                setEnrolled([]);
+            }
+        } catch (err) {
+            console.error("Error loading enrollment:", err);
+            setEnrolled([]);
+        }
+    }
+
     async function toggleModuleEnrollment(moduleId) {
-        alert("Module enrollment is not yet implemented in the backend.");
-        // TODO: Implement when backend supports enrollment
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            alert('Please log in to enroll in modules');
+            return;
+        }
+
+        const isEnrolled = enrolled.includes(moduleId);
+
+        try {
+            if (isEnrolled) {
+                const res = await fetch(MODULE_API.UNENROLL_USER(moduleId, userId), { method: "POST" });
+                if (res.ok) {
+                    setEnrolled(prev => prev.filter(id => id !== moduleId));
+                    alert('Successfully unenrolled from module!');
+                } else {
+                    alert('Failed to unenroll');
+                }
+            } else {
+                const res = await fetch(MODULE_API.ENROLL_USER(moduleId, userId), { method: "POST" });
+                if (res.ok) {
+                    setEnrolled(prev => [...prev, moduleId]);
+                    alert('Successfully enrolled in module!');
+                } else {
+                    alert('Failed to enroll');
+                }
+            }
+        } catch (error) {
+            console.error('Enrollment error:', error);
+            alert('An error occurred');
+        }
     }
 
     async function handleDeleteCourse() {

@@ -13,7 +13,7 @@ export const USER_API = {
   SIGN_UP: `${API_BASE_URLS.USER_SERVICE}/api/sign-up`,
   LOGIN: `${API_BASE_URLS.USER_SERVICE}/api/login`,
   GET_ALL_USERS: `${API_BASE_URLS.USER_SERVICE}/api/all-users`,
-  GET_USER_BY_ID: (userId) => `${API_BASE_URLS.USER_SERVICE}/api/user-by-userid/${userId}`,
+  GET_USER_BY_ID: (userId) => `${API_BASE_URLS.USER_SERVICE}/api/user-by-db-id/${userId}`,
   UPDATE_USER: (userId) => `${API_BASE_URLS.USER_SERVICE}/api/update-user-by-userid/${userId}`,
   DELETE_USER: (userId) => `${API_BASE_URLS.USER_SERVICE}/api/delete-user-by-userid/${userId}`,
   PROXY_COURSES: `${API_BASE_URLS.USER_SERVICE}/api/proxy/courses`,
@@ -30,6 +30,7 @@ export const COURSE_API = {
   PATCH_COURSE: (courseId) => `${API_BASE_URLS.COURSE_SERVICE}/api/patch-course-by-id/${courseId}`,
   DELETE_COURSE: (courseId) => `${API_BASE_URLS.COURSE_SERVICE}/api/delete-course-by-id/${courseId}`,
   ENROLL_USER: (courseId, userId) => `${API_BASE_URLS.COURSE_SERVICE}/api/courses/${courseId}/enroll/${userId}`,
+  UNENROLL_USER: (courseId, userId) => `${API_BASE_URLS.COURSE_SERVICE}/api/courses/${courseId}/unenroll/${userId}`,
   PROXY_MODULES: `${API_BASE_URLS.COURSE_SERVICE}/api/proxy/modules`,
 };
 
@@ -41,6 +42,8 @@ export const MODULE_API = {
   UPDATE_MODULE: (moduleId) => `${API_BASE_URLS.MODULE_SERVICE}/api/module/${moduleId}`,
   PATCH_MODULE: (moduleId) => `${API_BASE_URLS.MODULE_SERVICE}/api/module/${moduleId}`,
   DELETE_MODULE: (moduleId) => `${API_BASE_URLS.MODULE_SERVICE}/api/module/${moduleId}`,
+  ENROLL_USER: (moduleId, userId) => `${API_BASE_URLS.MODULE_SERVICE}/api/modules/${moduleId}/enroll/${userId}`,
+  UNENROLL_USER: (moduleId, userId) => `${API_BASE_URLS.MODULE_SERVICE}/api/modules/${moduleId}/unenroll/${userId}`,
   PROXY_POSTS: `${API_BASE_URLS.MODULE_SERVICE}/api/proxy/posts`,
 };
 

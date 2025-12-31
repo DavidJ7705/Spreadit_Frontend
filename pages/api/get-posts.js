@@ -2,7 +2,7 @@
 
 async function handler(req, res) {
   try {
-    const response = await fetch('http://localhost:8004/api/get-all-posts', {
+    const response = await fetch('http://post-service:8000/api/get-all-posts', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
