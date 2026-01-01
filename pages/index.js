@@ -1,7 +1,7 @@
 import PostItem from '../components/posts/PostItem';
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/router';
-import { POST_API } from '../config/api';
+import { POST_API, USER_API } from '../config/api';
 
 import WelcomeText from '../components/WelcomeText';
 import classes from '../styles/Home.module.css';
@@ -23,7 +23,7 @@ function HomePage() {
         const id = localStorage.getItem('userId');
 
         if (id) {
-            setCurrentUserId(parseInt(id));
+            setCurrentUserId(id);
         }
 
         if (email) {
@@ -62,14 +62,14 @@ function HomePage() {
 
             // Try to fetch all users to get names
             try {
-                const usersResponse = await fetch('http://localhost:8001/api/all-users');
+                const usersResponse = await fetch(USER_API.GET_ALL_USERS);
                 if (usersResponse.ok) {
                     const users = await usersResponse.json();
 
                     // Create a map of user_id to username
                     const userMap = {};
                     users.forEach(user => {
-                        userMap[user.id] = user.name || user.username || user.email;
+                        userMap[user.user_id] = user.name || user.username || user.email;
                     });
 
                     // Enhance posts with usernames

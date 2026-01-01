@@ -25,8 +25,8 @@ export default function PostDetail(props) {
     // Check if current user has liked
     useEffect(() => {
         if (props.currentUserId && likes.length > 0) {
-            const currentId = Number(props.currentUserId);
-            setIsLiked(likes.some(l => Number(l.user_id) === currentId));
+            const currentId = props.currentUserId;
+            setIsLiked(likes.some(l => l.user_id === currentId));
         }
     }, [props.currentUserId, likes]);
 
@@ -45,8 +45,8 @@ export default function PostDetail(props) {
                 setLikes(postLikes);
 
                 if (props.currentUserId) {
-                    const currentId = Number(props.currentUserId);
-                    setIsLiked(postLikes.some(l => Number(l.user_id) === currentId));
+                    const currentId = props.currentUserId;
+                    setIsLiked(postLikes.some(l => l.user_id === currentId));
                 }
             }
         } catch (err) {
@@ -322,7 +322,7 @@ export default function PostDetail(props) {
                             <p className={classes.noComments}>No comments yet. Be the first to comment!</p>
                         ) : (
                             comments.map((comment) => {
-                                const canDeleteComment = comment.user_id === Number(props.currentUserId) || props.currentUserRole === "admin";
+                                const canDeleteComment = comment.user_id === props.currentUserId || props.currentUserRole === "admin";
                                 return (
                                     <div key={comment.id || comment._id} className={classes.commentCard}>
                                         <div className={classes.commentHeader}>

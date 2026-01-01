@@ -50,7 +50,7 @@ export default function SignupPage() {
         const createdUser = await res.json();
 
         // Store in localStorage
-        localStorage.setItem('userId', createdUser.id.toString());
+        localStorage.setItem('userId', createdUser.user_id);
         localStorage.setItem('userEmail', createdUser.email);
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('isAdmin', createdUser.is_admin ? 'true' : 'false');
