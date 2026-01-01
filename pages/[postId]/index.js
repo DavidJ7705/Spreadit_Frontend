@@ -18,7 +18,7 @@ export default function PostDetailPage() {
     useEffect(() => {
         const userId = localStorage.getItem('userId');
         const isAdmin = localStorage.getItem('isAdmin') === 'true';
-        setCurrentUser(userId ? { id: parseInt(userId), role: isAdmin ? "admin" : "user" } : null);
+        setCurrentUser(userId ? { id: userId, role: isAdmin ? "admin" : "user" } : null);
     }, []);
 
     // Fetch post
@@ -47,7 +47,7 @@ export default function PostDetailPage() {
                     const usersRes = await fetch(USER_API.GET_ALL_USERS);
                     if (usersRes.ok) {
                         const users = await usersRes.json();
-                        const postUser = users.find(u => u.id === postData.user_id);
+                        const postUser = users.find(u => u.user_id === postData.user_id);
                         postData.username = postUser ? (postUser.username || postUser.name || postUser.email) : `User ${postData.user_id}`;
                     } else {
                         postData.username = `User ${postData.user_id}`;

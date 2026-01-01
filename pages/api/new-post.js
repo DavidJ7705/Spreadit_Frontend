@@ -6,10 +6,10 @@ async function handler(req, res) {
     const { user_id, ...postData } = req.body;
 
     // Validate inputs
-    const userIdInt = parseInt(user_id);
+    // Validate inputs
     const moduleIdInt = parseInt(postData.module_id);
 
-    if (!user_id || isNaN(userIdInt)) {
+    if (!user_id) {
       return res.status(422).json({ error: "Invalid User ID. Please log in again." });
     }
 
@@ -29,7 +29,7 @@ async function handler(req, res) {
       post_title: postData.post_title,
       content: postData.content,
       module_id: moduleIdInt,
-      user_id: userIdInt
+      user_id: user_id
     };
 
     console.log("Validated payload:", payload);
