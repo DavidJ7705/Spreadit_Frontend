@@ -13,6 +13,7 @@ export default function CourseDetailPage() {
     const [enrolled, setEnrolled] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [currentUserId, setCurrentUserId] = useState(null);
 
     // Modal states
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -23,6 +24,7 @@ export default function CourseDetailPage() {
         // Check admin status from localStorage
         const adminStatus = localStorage.getItem('isAdmin') === 'true';
         setIsAdmin(adminStatus);
+        setCurrentUserId(localStorage.getItem('userId'));
 
         if (id) {
             loadCourse();
@@ -89,30 +91,89 @@ export default function CourseDetailPage() {
     }
 
     async function toggleModuleEnrollment(moduleId) {
-        const userId = localStorage.getItem('userId');
-        if (!userId) {
+        if (!currentUserId) {
             alert('Please log in to enroll in modules');
             return;
         }
 
-        const isEnrolled = enrolled.includes(moduleId);
+        // Find module to check its specific enrolled_users
+        const module = modules.find(m => m.id_module === moduleId);
+        const moduleSideEnrollment = module && module.enrolled_users && module.enrolled_users.includes(currentUserId);
+        const userSideEnrollment = enrolled.includes(moduleId);
+
+        const isEnrolled = userSideEnrollment || moduleSideEnrollment;
 
         try {
             if (isEnrolled) {
-                const res = await fetch(MODULE_API.UNENROLL_USER(moduleId, userId), { method: "POST" });
+                const res = await fetch(MODULE_API.UNENROLL_USER(moduleId, currentUserId), { method: "POST" });
                 if (res.ok) {
+                    // Update User Side State
                     setEnrolled(prev => prev.filter(id => id !== moduleId));
+
+                    // Update Module Side State (UI Mirror)
+                    setModules(prev => prev.map(m => {
+                        if (m.id_module === moduleId) {
+                            return {
+                                ...m,
+                                enrolled_users: (m.enrolled_users || []).filter(uid => uid !== currentUserId)
+                            };
+                        }
+                        return m;
+                    }));
+
                     alert('Successfully unenrolled from module!');
                 } else {
-                    alert('Failed to unenroll');
+                    const error = await res.json();
+                    if (error.detail === "User was not enrolled") {
+                        // Fix for sync issues: If backend says not enrolled, force remove from local state
+                        setEnrolled(prev => prev.filter(id => id !== moduleId));
+                        setModules(prev => prev.map(m => {
+                            if (m.id_module === moduleId) {
+                                return {
+                                    ...m,
+                                    enrolled_users: (m.enrolled_users || []).filter(uid => uid !== currentUserId)
+                                };
+                            }
+                            return m;
+                        }));
+                    }
+                    alert(error.detail || 'Failed to unenroll');
                 }
             } else {
-                const res = await fetch(MODULE_API.ENROLL_USER(moduleId, userId), { method: "POST" });
+                const res = await fetch(MODULE_API.ENROLL_USER(moduleId, currentUserId), { method: "POST" });
                 if (res.ok) {
+                    // Update User Side State
                     setEnrolled(prev => [...prev, moduleId]);
+
+                    // Update Module Side State (UI Mirror)
+                    setModules(prev => prev.map(m => {
+                        if (m.id_module === moduleId) {
+                            return {
+                                ...m,
+                                enrolled_users: [...(m.enrolled_users || []), currentUserId]
+                            };
+                        }
+                        return m;
+                    }));
+
                     alert('Successfully enrolled in module!');
                 } else {
-                    alert('Failed to enroll');
+                    const error = await res.json();
+                    if (error.detail === "User already enrolled in module") {
+                        // Fix for sync issues: If backend says already enrolled, force add to local state
+                        if (!enrolled.includes(moduleId)) setEnrolled(prev => [...prev, moduleId]);
+                        setModules(prev => prev.map(m => {
+                            if (m.id_module === moduleId) {
+                                if (m.enrolled_users && m.enrolled_users.includes(currentUserId)) return m;
+                                return {
+                                    ...m,
+                                    enrolled_users: [...(m.enrolled_users || []), currentUserId]
+                                };
+                            }
+                            return m;
+                        }));
+                    }
+                    alert(error.detail || 'Failed to enroll');
                 }
             }
         } catch (error) {
@@ -123,7 +184,7 @@ export default function CourseDetailPage() {
 
     async function handleDeleteCourse() {
         try {
-            const res = await fetch(`http://localhost:8002/api/delete-course-by-id/${id}`, {
+            const res = await fetch(`http://localhost:8002/api/delete-course-by-id/${course.course_id}`, {
                 method: "DELETE"
             });
 
@@ -138,7 +199,7 @@ export default function CourseDetailPage() {
     async function handleEditCourse(e) {
         e.preventDefault();
         try {
-            const res = await fetch(`http://localhost:8002/api/patch-course-by-id/${id}`, {
+            const res = await fetch(`http://localhost:8002/api/patch-course-by-id/${course.course_id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(editForm)
@@ -227,7 +288,9 @@ export default function CourseDetailPage() {
                 ) : (
                     <div className={classes.grid}>
                         {modules.map((m) => {
-                            const isEnrolled = enrolled.includes(m.id_module);
+                            // Check both User Service list (enrolled) and Module Service list (m.enrolled_users)
+                            const isEnrolled = enrolled.includes(m.id_module) ||
+                                (currentUserId && m.enrolled_users && m.enrolled_users.includes(currentUserId));
 
                             return (
                                 <div key={m.id_module} className={classes.card}>
