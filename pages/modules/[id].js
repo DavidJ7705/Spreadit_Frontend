@@ -20,6 +20,7 @@ export default function ModulePage() {
   const [posts, setPosts] = useState([]);
   const [userId, setUserId] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Modal states
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -27,6 +28,10 @@ export default function ModulePage() {
   const [editForm, setEditForm] = useState({ id_module: "", name: "" });
 
   useEffect(() => {
+    // Check admin status
+    const adminStatus = localStorage.getItem('isAdmin') === 'true';
+    setIsAdmin(adminStatus);
+
     if (!id) return;
 
     loadModule();
@@ -194,8 +199,8 @@ export default function ModulePage() {
               <h1 className={layoutClasses.pageTitle}>{moduleData.id_module} — {moduleData.name}</h1>
               {/* Backend doesn't have description field */}
 
-              {/* Admin controls - disabled since backend doesn't have roles */}
-              {false && (
+              {/* Admin controls */}
+              {isAdmin && (
                 <div className={layoutClasses.adminControls}>
                   <button className={layoutClasses.editBtn} onClick={() => setShowEditModal(true)}>
                     Edit Module

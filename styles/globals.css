@@ -60,14 +60,17 @@ body[data-theme="light"] {
 /* Base Reset */
 * {
     box-sizing: border-box;
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    box-sizing: border-box;
+    /* transition removed for instant theme switching */
 }
 
 body {
     margin: 0;
     font-family: 'Outfit', sans-serif;
+    font-family: 'Outfit', sans-serif;
     background-color: var(--bg);
     color: var(--text);
+    min-height: 100vh;
     overflow-x: hidden;
 }
 

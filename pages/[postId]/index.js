@@ -17,7 +17,8 @@ export default function PostDetailPage() {
     // Fetch current user
     useEffect(() => {
         const userId = localStorage.getItem('userId');
-        setCurrentUser(userId ? { id: parseInt(userId) } : null);
+        const isAdmin = localStorage.getItem('isAdmin') === 'true';
+        setCurrentUser(userId ? { id: parseInt(userId), role: isAdmin ? "admin" : "user" } : null);
     }, []);
 
     // Fetch post
@@ -123,7 +124,7 @@ export default function PostDetailPage() {
             profilePicture={null}
             description={post.content || ''}  // Backend uses content
             currentUserId={currentUser?.id}
-            currentUserRole={null}  // Backend doesn't have roles
+            currentUserRole={currentUser?.role}
             currentUserProfilePicture={null}
             postUserId={post.user_id}
             moduleId={post.module_id}
