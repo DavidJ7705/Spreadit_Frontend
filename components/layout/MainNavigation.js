@@ -19,13 +19,8 @@ function MainNavigation({ onToggleTheme, theme }) {
   useEffect(() => {
     async function loadRole() {
       try {
-        const res = await fetch("http://localhost:8001/auth/profile", {
-          credentials: "include"
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setRole(data.role);
-        }
+        const isAdmin = localStorage.getItem('isAdmin') === 'true';
+        setRole(isAdmin ? 'admin' : 'user');
       } catch (err) { }
     }
     loadRole();

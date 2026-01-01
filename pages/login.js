@@ -27,26 +27,19 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
-        // Backend now returns { message, user_id, is_admin }
+        // Backend now returns { message, user_id, is_admin, access_token, token_type }
         const data = await res.json();
 
-        // Fetch full user data to get the id
-        const usersRes = await fetch('http://localhost:8001/api/all-users');
-        const users = await usersRes.json();
-        const user = users.find(u => u.email === email);
+        // Store JWT token and user info in localStorage
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('token_type', data.token_type);
+        localStorage.setItem('userId', data.user_id);
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('isAdmin', data.is_admin ? 'true' : 'false');
 
-        if (user) {
-          // Store in localStorage
-          localStorage.setItem('userId', user.id.toString());
-          localStorage.setItem('userEmail', user.email);
-          localStorage.setItem('isAuthenticated', 'true');
-          localStorage.setItem('isAdmin', data.is_admin ? 'true' : 'false');
-
-          setFadeOut(true);
-          setTimeout(() => router.push("/"), 1000);
-        } else {
-          setError("User not found");
-        }
+        setFadeOut(true);
+        setTimeout(() => router.push("/"), 1000);
       } else {
         const errorData = await res.json().catch(() => ({ detail: "Invalid email or password" }));
         setError(errorData.detail || "Invalid email or password");
